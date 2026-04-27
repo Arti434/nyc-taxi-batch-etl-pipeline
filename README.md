@@ -1,96 +1,78 @@
-# 🚕 NYC Taxi Batch ETL Pipeline
-
+# nyc-taxi-batch-etl-pipeline
 A production-grade batch ETL pipeline processing **2.7M NYC Yellow Taxi records** using Google Cloud Platform.
-
 ## 🏗️ Architecture
-
 Cloud Scheduler (daily 2AM)
 ↓
 Cloud Function 1 — Ingest
+(downloads parquet from NYC TLC)
 ↓
 GCS Bucket (raw storage)
 ↓
 Cloud Function 2 — Transform
+(pandas: clean, validate, rename)
 ↓
-Apache Beam / Dataflow
-↓
-BigQuery (partitioned table)
+BigQuery (partitioned by date)
 ↓
 Looker Studio Dashboard
-
 ## ⚡ Pipeline Stats
-| Metric | Value |
-|--------|-------|
-| Records Processed | 2,723,762 |
-| Data Quality | 91.8% valid rows |
-| Processing Time | ~2 minutes |
-| Cost | $0/month |
-| Schedule | Daily 2:00 AM EST |
+- **Records processed:** 2,723,762 rows
+- **Data quality:** 91.8% valid rows
+- **Processing time:** ~2 minutes
+- **Cost:** $0/month (free tier)
+- **Schedule:** Daily at 2:00 AM EST
 
 ## 🛠️ Tech Stack
 | Service | Purpose |
 |---------|---------|
 | Cloud Scheduler | Daily cron trigger |
-| Cloud Functions | Serverless Python |
+| Cloud Functions | Serverless Python execution |
 | GCS | Raw file storage |
-| BigQuery | Analytics warehouse |
-| Apache Beam | Distributed processing |
+| BigQuery | Analytical warehouse |
+| Apache Beam | Distributed processing (Path B) |
 | Dataflow | Managed Beam runner |
-| Looker Studio | Dashboard |
+| Looker Studio | Dashboard & visualization |
 
-## 📊 Key Results
-- ✅ 2.7M rows processed daily
-- ✅ Partitioned BigQuery table (cost optimized)
-- ✅ Automated end-to-end pipeline
-- ✅ Real-time Looker Studio dashboard
+## 📊 Dashboard
+[View Live Dashboard](#) ← https://datastudio.google.com/s/rSwgWksnyH8
 
 ## 🚀 How to Run
 
-### 1. Setup GCP
+### Prerequisites
 ```bash
-gcloud auth login
-gcloud config set project YOUR_PROJECT_ID
+pip install google-cloud-storage google-cloud-bigquery \
+            functions-framework pandas pyarrow
 ```
 
-### 2. Enable APIs
+### Deploy Cloud Functions
 ```bash
-gcloud services enable cloudfunctions.googleapis.com \
-  bigquery.googleapis.com storage.googleapis.com \
-  cloudscheduler.googleapis.com dataflow.googleapis.com
-```
-
-### 3. Deploy Ingest Function
-```bash
+# Function 1 - Ingest
 cd ingestion/
 gcloud functions deploy ingest-taxi-data \
   --gen2 --runtime=python311 \
-  --trigger-http --allow-unauthenticated \
-  --memory=512MB --timeout=300s
-```
+  --trigger-http --allow-unauthenticated
 
-### 4. Deploy Transform Function
-```bash
+# Function 2 - Transform  
 cd transform/
 gcloud functions deploy transform-taxi-data \
   --gen2 --runtime=python311 \
-  --trigger-http --allow-unauthenticated \
-  --memory=2GB --timeout=540s
+  --trigger-http --allow-unauthenticated
 ```
 
-### 5. Run Dataflow Pipeline
+### Run Dataflow Pipeline
 ```bash
 cd dataflow/
-python3 pipeline.py --runner DataflowRunner \
-  --region us-central1 --num_workers=2
+python3 pipeline.py \
+  --runner DataflowRunner \
+  --region us-central1
 ```
 
 ## 📁 Project Structure
 nyc-taxi-batch-etl-pipeline/
 ├── ingestion/
-│   ├── main.py           # Download → GCS
+│   ├── main.py           # Cloud Function 1
 │   └── requirements.txt
 ├── transform/
-│   ├── main.py           # Clean → BigQuery
+│   ├── main.py           # Cloud Function 2
 │   └── requirements.txt
 ├── dataflow/
 │   └── pipeline.py       # Apache Beam pipeline
@@ -98,3 +80,4 @@ nyc-taxi-batch-etl-pipeline/
 ## 👤 Author
 **Arti** | GCP Data Engineer
 GitHub: [@Arti434](https://github.com/Arti434)
+EOF
