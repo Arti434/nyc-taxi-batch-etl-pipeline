@@ -1,0 +1,30 @@
+version: 2
+
+sources:
+  - name: taxi_data
+    database: nyc-taxi-etl-demo-494006
+    schema: taxi_data
+    tables:
+      - name: trips
+        description: "Raw NYC Yellow Taxi trips data"
+        columns:
+          - name: vendor_id
+            description: "Taxi vendor ID"
+          - name: pickup_datetime
+            description: "Trip pickup timestamp"
+          - name: dropoff_datetime
+            description: "Trip dropoff timestamp"
+          - name: passenger_count
+            description: "Number of passengers"
+          - name: trip_distance
+            description: "Trip distance in miles"
+          - name: fare_amount
+            description: "Base fare amount"
+          - name: tip_amount
+            description: "Tip amount"
+          - name: total_amount
+            description: "Total amount charged"
+          - name: pickup_location_id
+            description: "Pickup location ID"
+          - name: dropoff_location_id
+            description: "Dropoff location ID"
