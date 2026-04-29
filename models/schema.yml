@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: stg_taxi_trips
+    description: "Cleaned and standardized NYC taxi trips"
+    columns:
+      - name: vendor_id
+        tests:
+          - not_null
+      - name: pickup_datetime
+        tests:
+          - not_null
+      - name: fare_amount
+        tests:
+          - not_null
+      - name: trip_distance
+        tests:
+          - not_null
+
+  - name: mart_daily_trips
+    description: "Daily trip aggregations"
+    columns:
+      - name: pickup_date
+        tests:
+          - not_null
+          - unique
+      - name: total_trips
+        tests:
+          - not_null
+
+  - name: mart_location_performance
+    description: "Performance by pickup location"
+    columns:
+      - name: pickup_location_id
+        tests:
+          - not_null
+          - unique
